@@ -73,6 +73,17 @@ publishing {
       }
     }
   }
+  if (project.hasProperty("maven_url")) {
+    repositories {
+      maven {
+        url maven_url
+        credentials(PasswordCredentials) {
+          username = maven_user
+          password = maven_password
+        }
+      }
+    }
+  }
 }
 
 
