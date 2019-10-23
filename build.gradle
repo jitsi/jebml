@@ -58,17 +58,33 @@ sourceSets {
     }
 }
 
+task sourcesJar(type: Jar, dependsOn: classes) {
+  from sourceSets.main.allSource
+}
+javadoc {
+  failOnError = false
+}
+task javadocJar(type: Jar, dependsOn: javadoc) {
+  from javadoc.destinationDir
+}
+
 publishing {
   publications {
     "${project.name}Jar"(MavenPublication) {
       from components.java
       version project.version.toString()
       artifactId project.name
+      artifact sourcesJar {
+        classifier "sources"
+      }
+      artifact javadocJar {
+        classifier "javadoc"
+      }
     }
   }
 }
 
-project.version = '2.3.0'
+project.version = '2.3.1'
 
 bundle {
     instructions << [
