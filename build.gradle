@@ -4,6 +4,7 @@ apply plugin: 'findbugs'
 apply plugin: 'checkstyle'
 apply plugin: 'osgi'
 apply plugin: 'maven-publish'
+project.version = '2.3.2'
 
 repositories {
     mavenLocal()
@@ -63,7 +64,6 @@ publishing {
   publications {
     "${project.name}Jar"(MavenPublication) {
       from components.java
-      version project.version.toString()
       artifactId project.name
       artifact sourcesJar {
         classifier "sources"
@@ -75,7 +75,6 @@ publishing {
   }
 }
 
-project.version = '2.3.1'
 
 jar {
     manifest {

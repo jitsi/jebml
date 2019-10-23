@@ -22,6 +22,7 @@ package org.ebml.matroska;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -744,5 +745,10 @@ public class MatroskaFile
   public boolean getScanFirstCluster()
   {
     return scanFirstCluster;
+  }
+
+  public List<MatroskaFileTagEntry> getTagList()
+  {
+    return tagList;
   }
 }
