@@ -2,21 +2,12 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'findbugs'
 apply plugin: 'checkstyle'
-apply plugin: 'org.dm.bundle'
+apply plugin: 'osgi'
 apply plugin: 'maven-publish'
 
 repositories {
     mavenLocal()
     mavenCentral()
-}
-
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'org.dm.gradle:gradle-bundle-plugin:0.6.2'
-    }
 }
 
 dependencies {
@@ -54,7 +45,7 @@ findbugsTest {
 sourceSets {
     main {
         resources.srcDirs = java.srcDirs
-        output.resourcesDir = output.classesDir
+        output.resourcesDir = output.classesDirs.first()
     }
 }
 
@@ -86,8 +77,9 @@ publishing {
 
 project.version = '2.3.1'
 
-bundle {
-    instructions << [
+jar {
+    manifest {
+      instructions << [
         'Bundle-Name'   : 'JEBML',
         'Bundle-Version': version,
         'Bundle-License': 'LGPLv2',
@@ -96,5 +88,6 @@ bundle {
         '-nodefaultversion': true,
         '-noee': true,
         'majorMinor' : 1
-    ]
+      ]
+    }
 }
