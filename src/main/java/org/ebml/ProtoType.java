@@ -15,6 +15,7 @@ public class ProtoType<T extends Element>
 
   private final String name;
   private final int level;
+  private long typeCode;
 
   public ProtoType(final Class<T> clazz, final String name, final byte[] type, final int level)
   {
@@ -22,9 +23,9 @@ public class ProtoType<T extends Element>
     this.type = ByteBuffer.wrap(type);
     this.name = name;
     this.level = level;
-    final long codename = EBMLReader.parseEBMLCode(this.type);
-    CLASS_MAP.put(codename, this);
-    LOG.trace("Associating {} with {}", name, codename);
+    typeCode = EBMLReader.parseEBMLCode(this.type);
+    CLASS_MAP.put(typeCode, this);
+    LOG.trace("Associating {} with {}", name, typeCode);
   }
 
   public T getInstance()
@@ -65,5 +66,10 @@ public class ProtoType<T extends Element>
   public ByteBuffer getType()
   {
     return type.asReadOnlyBuffer();
+  }
+
+  public long getTypeCode()
+  {
+    return typeCode;
   }
 }

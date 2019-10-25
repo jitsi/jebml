@@ -2,17 +2,17 @@
  * JEBML - Java library to read/write EBML/Matroska elements.
  * Copyright (C) 2004 Jory Stone <jebml@jory.info>
  * Based on Javatroska (C) 2002 John Cannon <spyder@matroska.org>
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -20,6 +20,7 @@
 package org.ebml;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.ebml.io.DataSource;
 import org.ebml.io.DataWriter;
@@ -50,6 +51,44 @@ public class MasterElement extends Element
 
     LOG.trace("Read element {} of size {}: {} remaining", elem.getElementType().getName(), elem.getTotalSize(), getSize() - usedSize);
     return elem;
+  }
+
+  public Iterable<Element> remainingChildren(DataSource ioDS, EBMLReader reader)
+  {
+    return new Iterable<Element>()
+    {
+      @Override
+      public Iterator<Element> iterator()
+      {
+        return new Iterator<Element>()
+        {
+          Element theNext;
+          Element thePrev;
+
+          @Override
+          public boolean hasNext()
+          {
+            if (thePrev != null)
+            {
+              thePrev.skipData(ioDS);
+            }
+            if (theNext == null)
+            {
+              theNext = readNextChild(reader);
+            }
+            return theNext != null;
+          }
+
+          @Override
+          public Element next()
+          {
+            thePrev = theNext;
+            theNext = null;
+            return thePrev;
+          }
+        };
+      }
+    };
   }
 
   /* Skip the element data */

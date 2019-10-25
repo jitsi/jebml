@@ -46,3 +46,37 @@ print """
   {
   }
 }"""
+
+print """package org.ebml.matroska;
+/** Matroska spec generated element list document
+    Do not manually edit this file.
+*/
+import org.ebml.ProtoType;
+import org.ebml.Element;
+
+public enum MatroskaDocType
+{"""
+elementFormat = '  {0}(MatroskaDocTypes.{0}),'
+for element in root.iter("element"):
+    elemName = element.attrib['name'].replace('-','_')
+    print elementFormat.format(elemName)
+
+print """  UNKNOWN(MatroskaDocTypes.Void); // Not a recognized element type
+ 
+  private ProtoType<?> protoType;
+  
+  private MatroskaDocType(ProtoType<?> protoType)
+  {
+    this.protoType = protoType;
+  }
+  
+  public ProtoType<?> getProtoType()
+  {
+    return protoType;
+  }
+  
+  public boolean isElementThisType(Element element)
+  {
+    return element.isType(protoType.getType());
+  }
+}"""
