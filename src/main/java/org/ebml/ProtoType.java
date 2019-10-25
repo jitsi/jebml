@@ -32,12 +32,12 @@ public class ProtoType<T extends Element>
     LOG.trace("Instantiating {}", name);
     try
     {
-      final T elem = clazz.newInstance();
+      final T elem = clazz.getConstructor().newInstance();
       elem.setType(type);
       elem.setElementType(this);
       return elem;
     }
-    catch (InstantiationException | IllegalAccessException e)
+    catch (Exception e)
     {
       LOG.error("Failed to instantiate: this should never happen!", e);
       throw new RuntimeException(e);
