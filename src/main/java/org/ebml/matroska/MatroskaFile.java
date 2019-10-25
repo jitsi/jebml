@@ -167,7 +167,7 @@ public class MatroskaFile
    *
    * @return The next MatroskaFileFrame in the queue, or null if the file has ended
    */
-  public MatroskaFileFrame getNextFrame()
+  public synchronized MatroskaFileFrame getNextFrame()
   {
     if (frameQueue.isEmpty())
     {
@@ -188,7 +188,7 @@ public class MatroskaFile
    * @param trackNo The track number to only get MatroskaFileFrame(s) from
    * @return The next MatroskaFileFrame in the queue, or null if there are no more frames for the TrackNo track
    */
-  public MatroskaFileFrame getNextFrame(final int trackNo)
+  public synchronized MatroskaFileFrame getNextFrame(final int trackNo)
   {
     if (frameQueue.isEmpty())
     {
@@ -212,10 +212,7 @@ public class MatroskaFile
           frame = iter.next();
           if (frame.getTrackNo() == trackNo)
           {
-            synchronized (frameQueue)
-            {
-              iter.remove();
-            }
+            iter.remove();
             return frame;
           }
           frame = null;
@@ -309,30 +306,27 @@ public class MatroskaFile
     return 0;
   }
 
-  private void fillFrameQueue()
+  private synchronized void fillFrameQueue()
   {
     if (level0 == null)
     {
       throw new java.lang.IllegalStateException("Call readFile() before reading frames");
     }
 
-    synchronized (level0)
+    if (level1 == null)
     {
-      if (level1 == null)
+      level1 = ((MasterElement) level0).readNextChild(reader);
+    }
+
+    while (frameQueue.isEmpty() && level1 != null)
+    {
+      if (level1.isType(MatroskaDocTypes.Cluster.getType()))
       {
-        level1 = ((MasterElement) level0).readNextChild(reader);
+        parseNextCluster(level1);
       }
 
-      while (frameQueue.isEmpty() && level1 != null)
-      {
-        if (level1.isType(MatroskaDocTypes.Cluster.getType()))
-        {
-          parseNextCluster(level1);
-        }
-
-        level1.skipData(ioDS);
-        level1 = ((MasterElement) level0).readNextChild(reader);
-      }
+      level1.skipData(ioDS);
+      level1 = ((MasterElement) level0).readNextChild(reader);
     }
   }
 
@@ -365,10 +359,7 @@ public class MatroskaFile
         frame.setDuration(blockDuration);
         frame.setData(block.getFrame(0));
         frame.setKeyFrame(block.isKeyFrame());
-        synchronized (frameQueue)
-        {
-          frameQueue.add(new MatroskaFileFrame(frame));
-        }
+        frameQueue.add(new MatroskaFileFrame(frame));
 
         if (block.getFrameCount() > 1)
         {
