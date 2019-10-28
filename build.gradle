@@ -1,11 +1,11 @@
 apply plugin: 'java'
 apply plugin: 'maven'
-apply plugin: 'findbugs'
 apply plugin: 'checkstyle'
 apply plugin: 'osgi'
 apply plugin: 'maven-publish'
-project.version = '2.4.0'
 
+
+project.version = '2.4.0'
 repositories {
     mavenLocal()
     mavenCentral()
@@ -22,24 +22,7 @@ checkstyleMain {
     configFile = file("tools/csMain.xml")
 }
 checkstyleTest {
-    configFile = file("tools/csTest.xml")
-}
-findbugs {
-    toolVersion = "3.+"
-    effort = "max"
-    reportLevel = "high"
-}
-findbugsMain {
-    reports {
-        xml.enabled = false
-        html.enabled = true
-    }
-}
-findbugsTest {
-    reports {
-        xml.enabled = false
-        html.enabled = true
-    }
+    configFile = file("tools/csMain.xml")
 }
 
 // Workaround so that packageinfo files get included for OSGi package versions

@@ -59,7 +59,7 @@ public class MatroskaFile
   private final DataSource ioDS;
   private final EBMLReader reader;
   private Element level0 = null;
-  // Level1 is required fo lazy reading of frames
+  // Level1 is required for lazy reading of frames
   private Element level1 = null;
   private String segmentTitle;
   private Date segmentDate;
@@ -94,7 +94,6 @@ public class MatroskaFile
    */
   public void readFile()
   {
-    Element level1 = null;
     final Element level2 = null;
     // Element level3 = null;
     // Element level4 = null;
