@@ -19,6 +19,7 @@
  */
 package org.ebml.matroska;
 
+import java.io.Closeable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,7 +33,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Primary API entrypoint for writing Matroska files.
  */
-public class MatroskaFileWriter
+public class MatroskaFileWriter implements Closeable
 {
   private static final Logger LOG = LoggerFactory.getLogger(MatroskaFileWriter.class);
 
@@ -42,7 +43,7 @@ public class MatroskaFileWriter
   private MatroskaFileCues cueData;
   private MatroskaCluster cluster;
   private MatroskaSegmentInfo segmentInfoElem = new MatroskaSegmentInfo();
-  private MatroskaFileTracks tracks = new MatroskaFileTracks();;
+  private MatroskaFileTracks tracks = new MatroskaFileTracks();
   private MatroskaFileTags tags = new MatroskaFileTags();
   private Set<Integer> videoTrackNumbers = new HashSet<>();
   private boolean initialized = false;
@@ -277,6 +278,7 @@ public class MatroskaFileWriter
   /**
    * Finalizes the file by writing the final headers, index, and flushing data to the writer.
    */
+  @Override
   public void close()
   {
     flush();

@@ -4,7 +4,7 @@ apply plugin: 'findbugs'
 apply plugin: 'checkstyle'
 apply plugin: 'osgi'
 apply plugin: 'maven-publish'
-project.version = '2.3.3'
+project.version = '2.4.0'
 
 repositories {
     mavenLocal()
