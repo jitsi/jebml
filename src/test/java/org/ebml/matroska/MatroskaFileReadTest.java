@@ -99,6 +99,7 @@ public class MatroskaFileReadTest
       Assert.assertEquals(42, frame.getTrackNo());
       Assert.assertEquals(i % 3 == 0, frame.isKeyFrame());
     }
+    Assert.assertNull(file.getNextFrame());
   }
 
   @Test
@@ -113,5 +114,6 @@ public class MatroskaFileReadTest
       Assert.assertEquals(42, frame.getTrackNo());
       Assert.assertEquals(i % 3 == 0, frame.isKeyFrame());
     }
+    Assert.assertNull(file.getPreviousFrame());
   }
 }

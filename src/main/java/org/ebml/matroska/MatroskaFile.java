@@ -213,7 +213,7 @@ public class MatroskaFile
    */
   public synchronized MatroskaFileFrame getPreviousFrame()
   {
-    if (frameQueue.isEmpty())
+    if (frameQueue.isEmpty() && clusterReadIndex >= 0)
     {
       // Seek to the previous cluster
       int cueIdx = clusterReadIndex;
