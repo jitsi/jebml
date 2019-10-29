@@ -48,7 +48,13 @@ public class ProtoType<T extends Element>
   public static Element getInstance(final ByteBuffer type)
   {
     final long codename = EBMLReader.parseEBMLCode(type);
-    final ProtoType<? extends Element> eType = CLASS_MAP.get(Long.valueOf(codename));
+    Long codeValue = Long.valueOf(codename);
+    final ProtoType<? extends Element> eType = CLASS_MAP.get(codeValue);
+    if (eType == null)
+    {
+      LOG.warn("Unrecognized element type {}", Long.toHexString(codeValue));
+      return null;
+    }
     LOG.trace("Got codename {}, for element type {}", codename, eType.name);
     return eType.getInstance();
   }

@@ -5,7 +5,7 @@ apply plugin: 'osgi'
 apply plugin: 'maven-publish'
 
 
-project.version = '2.4.1'
+project.version = '2.4.2'
 repositories {
     mavenLocal()
     mavenCentral()

@@ -106,7 +106,7 @@ public class EBMLReader
 
     if (elementType == null)
     {
-      // Failed to read type id
+      // Failed to read type id, most likely due to end-of-file
       return null;
     }
 
@@ -129,34 +129,6 @@ public class EBMLReader
 
     // Return the element
     return elem;
-  }
-
-  public static ByteBuffer getEBMLCodeAsBytes(final DataSource source)
-  {
-    // Begin loop with byte set to newly read byte.
-    final byte firstByte = source.readByte();
-    final int numBytes = readEBMLCodeSize(firstByte);
-
-    if (numBytes == 0)
-    {
-      LOG.error("Failed to read ebml code size from {}", firstByte);
-      // Invalid size
-      return null;
-    }
-
-    // Setup space to store the bits
-    final ByteBuffer buf = ByteBuffer.allocate(numBytes);
-
-    // Clear the 1 at the front of this byte, all the way to the beginning of the size
-    buf.put((byte) (firstByte & ((0xFF >>> (numBytes)))));
-
-    if (numBytes > 1)
-    {
-      // Read the rest of the size.
-      source.read(buf);
-    }
-    buf.flip();
-    return buf;
   }
 
   public static int readEBMLCodeSize(final byte firstByte)
@@ -401,7 +373,7 @@ public class EBMLReader
 
     if (numBytes == 0)
     {
-      LOG.error("Failed to read ebml code size from {}", firstByte);
+      LOG.warn("Failed to read ebml code size from {} -- most likely end of file", firstByte);
       // Invalid size
       return null;
     }
