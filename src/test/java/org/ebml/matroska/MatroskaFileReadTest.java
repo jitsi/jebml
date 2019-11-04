@@ -82,7 +82,7 @@ public class MatroskaFileReadTest
   public void testSeek()
   {
     LOG.debug("Testing seek");
-    long seeked = file.seek(123);
+    long seeked = file.seek(123, false);
     MatroskaFileFrame nextFrame = file.getNextFrame();
     Assert.assertEquals(120, seeked);
     Assert.assertEquals(120, nextFrame.getTimecode());
@@ -105,7 +105,7 @@ public class MatroskaFileReadTest
   @Test
   public void testPlayBackwards()
   {
-    file.seek(500);
+    file.seek(500, true);
     for (int i = 99; i >= 0; --i)
     {
       MatroskaFileFrame frame = file.getPreviousFrame();

@@ -382,14 +382,21 @@ public class MatroskaFile
    * </p>
    *
    * @param timecode Timecode to seek to in millseconds
+   * @param playDirectionIsReverse true if {@link #getPreviousFrame()} will be called next instead of {@link #getNextFrame()}
    * @return Actual timecode we seeked to
    */
-  public synchronized long seek(final long timecode)
+  public synchronized long seek(long timecode, boolean playDirectionIsReverse)
   {
     parseCuesIfNeeded();
     frameQueue.clear();
     int cueIdx = binarySearchCuesByTime(0, cueList.size(), timecode);
     FileCue cue = cueList.get(cueIdx);
+    if (playDirectionIsReverse && cue.timecode != timecode)
+    {
+      // When playing in reverse, we have to skip one additional cluster
+      // so that the play head actually crosses the seek time
+      cueIdx = Math.min(cueIdx + 1, cueList.size() - 1);
+    }
     ioDS.seek(cue.position);
     clusterReadIndex = cueIdx;
     level1 = null;
