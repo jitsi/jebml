@@ -1,0 +1,88 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.jitsi</groupId>
+    <artifactId>jebml</artifactId>
+    <version>2.4.4-SNAPSHOT</version>
+
+    <name>jebml</name>
+    <description>Matroska muxer/demuxer</description>
+    <url>https://github.com/jitsi/jebml</url>
+
+    <organization>
+        <name>jitsi.org</name>
+        <url>https://jitsi.org</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <id>org.jitsi</id>
+            <name>Jitsi Team</name>
+            <email>dev@jitsi.org</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <url>https://github.com/jitsi/jebml</url>
+        <connection>scm:git:https://github.com/jitsi/jebml.git</connection>
+        <developerConnection>scm:git:https://github.com/jitsi/jebml.git</developerConnection>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>The GNU Lesser General Public License, Version 2.0</name>
+            <url>https://github.com/jitsi/jebml/blob/master/LGPL.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.5</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.1</version>
+                <configuration>
+                    <release>11</release>
+                    <compilerArgs>
+                        <arg>-Xlint:all</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.2.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
