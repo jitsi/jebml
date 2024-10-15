@@ -76,7 +76,7 @@ class MatroskaCluster
 
   public boolean isFlushNeeded()
   {
-    return (lastTimecode - clusterTimecode) < durationLimit;
+    return (lastTimecode - clusterTimecode) > durationLimit;
   }
 
   public long flush(final DataWriter ioDW)
