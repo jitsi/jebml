@@ -20,11 +20,8 @@
 package org.ebml.matroska;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.ebml.MasterElement;
@@ -40,7 +37,6 @@ class MatroskaCluster
 {
   private static final Logger LOG = LoggerFactory.getLogger(MatroskaCluster.class);
   private final Queue<MatroskaFileFrame> frames = new ConcurrentLinkedQueue<>();
-  private final Set<Integer> tracks = new HashSet<>();
   private final List<Long> sliencedTracks = new ArrayList<>();
 
   private long clusterTimecode = Long.MAX_VALUE;
@@ -71,7 +67,6 @@ class MatroskaCluster
     }
     lastTimecode = frame.getTimecode();
     frames.add(frame);
-    tracks.add(frame.getTrackNo());
   }
 
   public boolean isFlushNeeded()
@@ -134,7 +129,6 @@ class MatroskaCluster
     finally
     {
       frames.clear();
-      tracks.clear();
       clusterTimecode = Long.MAX_VALUE;
     }
   }
@@ -142,11 +136,6 @@ class MatroskaCluster
   public long getClusterTimecode()
   {
     return clusterTimecode;
-  }
-
-  public Collection<Integer> getTracks()
-  {
-    return tracks;
   }
 
   public void unsilenceTrack(final long trackNumber)
