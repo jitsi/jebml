@@ -60,7 +60,7 @@ public class MatroskaFileTrack
   private String language = "eng";
   private String codecID;
   private ByteBuffer codecPrivate;
-  private long defaultDuration;
+  private Long defaultDuration;
   private boolean codecDecodeAll = true;
   private int seekPreroll = 0;
 
@@ -171,10 +171,10 @@ public class MatroskaFileTrack
 
   public static class MatroskaAudioTrack
   {
-    private float samplingFrequency;
-    private float outputSamplingFrequency;
-    private short channels;
-    private byte bitDepth;
+    private float samplingFrequency = 8000.0f;
+    private Float outputSamplingFrequency;
+    private short channels = 1;
+    private Byte bitDepth;
 
     public float getSamplingFrequency()
     {
@@ -186,7 +186,7 @@ public class MatroskaFileTrack
       this.samplingFrequency = samplingFrequency;
     }
 
-    public float getOutputSamplingFrequency()
+    public Float getOutputSamplingFrequency()
     {
       return outputSamplingFrequency;
     }
@@ -206,7 +206,7 @@ public class MatroskaFileTrack
       this.channels = channels;
     }
 
-    public byte getBitDepth()
+    public Byte getBitDepth()
     {
       return bitDepth;
     }
@@ -247,7 +247,10 @@ public class MatroskaFileTrack
     s += "\t\t" + "TrackNo: " + getTrackNo() + "\n";
     s += "\t\t" + "TrackUID: " + getTrackUID() + "\n";
     s += "\t\t" + "TrackType: " + getTrackType().name() + "\n";
-    s += "\t\t" + "DefaultDuration: " + getDefaultDuration() + "\n";
+    if (this.defaultDuration != null)
+    {
+      s += "\t\t" + "DefaultDuration: " + this.defaultDuration + "\n";
+    }
     s += "\t\t" + "Name: " + getName() + "\n";
     s += "\t\t" + "Language: " + getLanguage() + "\n";
     s += "\t\t" + "CodecID: " + getCodecID() + "\n";
@@ -481,18 +484,21 @@ public class MatroskaFileTrack
       trackEntryElem.addChildElement(trackCodecPrivateElem);
     }
 
-    final UnsignedIntegerElement trackDefaultDurationElem = MatroskaDocTypes.DefaultDuration.getInstance();
-    trackDefaultDurationElem.setValue(this.getDefaultDuration());
-
     final UnsignedIntegerElement trackCodecDecodeAllElem = MatroskaDocTypes.CodecDecodeAll.getInstance();
     trackCodecDecodeAllElem.setValue(this.codecDecodeAll ? 1 : 0);
 
-    // final UnsignedIntegerElement trackSeekPrerollElem = (UnsignedIntegerElement) doc.createElement(MatroskaDocTypes.TrackSeekPreroll);
-    // trackSeekPrerollElem.setValue(this.seekPreroll);
+    final UnsignedIntegerElement trackSeekPrerollElem = MatroskaDocTypes.SeekPreRoll.getInstance();
+    trackSeekPrerollElem.setValue(this.seekPreroll);
 
-    trackEntryElem.addChildElement(trackDefaultDurationElem);
+    if (this.defaultDuration != null)
+    {
+      UnsignedIntegerElement trackDefaultDurationElem = MatroskaDocTypes.DefaultDuration.getInstance();
+      trackDefaultDurationElem.setValue(this.getDefaultDuration());
+      trackEntryElem.addChildElement(trackDefaultDurationElem);
+    }
+
     trackEntryElem.addChildElement(trackCodecDecodeAllElem);
-    // trackEntryElem.addChildElement(trackSeekPrerollElem);
+    trackEntryElem.addChildElement(trackSeekPrerollElem);
 
     if (!overlayUids.isEmpty())
     {
@@ -546,19 +552,34 @@ public class MatroskaFileTrack
       final UnsignedIntegerElement trackAudioChannelsElem = MatroskaDocTypes.Channels.getInstance();
       trackAudioChannelsElem.setValue(this.audio.getChannels());
 
-      final UnsignedIntegerElement trackAudioBitDepthElem = MatroskaDocTypes.BitDepth.getInstance();
-      trackAudioBitDepthElem.setValue(this.audio.getBitDepth());
+      UnsignedIntegerElement trackAudioBitDepthElem = null;
+      if (this.audio.getBitDepth() != null)
+      {
+        trackAudioBitDepthElem = MatroskaDocTypes.BitDepth.getInstance();
+        trackAudioBitDepthElem.setValue(this.audio.getBitDepth());
+      }
 
       final FloatElement trackAudioSamplingRateElem = MatroskaDocTypes.SamplingFrequency.getInstance();
       trackAudioSamplingRateElem.setValue(this.audio.getSamplingFrequency());
 
-      final FloatElement trackAudioOutputSamplingFrequencyElem = MatroskaDocTypes.OutputSamplingFrequency.getInstance();
-      trackAudioOutputSamplingFrequencyElem.setValue(this.audio.getOutputSamplingFrequency());
+      FloatElement trackAudioOutputSamplingFrequencyElem = null;
+      if (this.audio.getOutputSamplingFrequency() != null)
+      {
+        trackAudioOutputSamplingFrequencyElem = MatroskaDocTypes.OutputSamplingFrequency.getInstance();
+        trackAudioOutputSamplingFrequencyElem.setValue(this.audio.getOutputSamplingFrequency());
+      }
+
 
       trackAudioElem.addChildElement(trackAudioChannelsElem);
-      trackAudioElem.addChildElement(trackAudioBitDepthElem);
+      if (trackAudioBitDepthElem != null)
+      {
+        trackAudioElem.addChildElement(trackAudioBitDepthElem);
+      }
       trackAudioElem.addChildElement(trackAudioSamplingRateElem);
-      trackAudioElem.addChildElement(trackAudioOutputSamplingFrequencyElem);
+      if (trackAudioOutputSamplingFrequencyElem != null)
+      {
+        trackAudioElem.addChildElement(trackAudioOutputSamplingFrequencyElem);
+      }
 
       trackEntryElem.addChildElement(trackAudioElem);
     }
