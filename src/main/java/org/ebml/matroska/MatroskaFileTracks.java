@@ -36,12 +36,13 @@ public class MatroskaFileTracks
     return BLOCK_SIZE;
   }
 
-  public void update(final DataWriter ioDW)
+  public long update(final DataWriter ioDW)
   {
     LOG.info("Updating tracks list!");
     final long start = ioDW.getFilePointer();
     ioDW.seek(myPosition);
-    writeTracks(ioDW);
+    long len = writeTracks(ioDW);
     ioDW.seek(start);
+    return len;
   }
 }

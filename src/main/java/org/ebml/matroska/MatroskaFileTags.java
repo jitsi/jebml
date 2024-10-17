@@ -39,12 +39,13 @@ public class MatroskaFileTags
     return len;
   }
 
-  public void update(final DataWriter ioDW)
+  public long update(final DataWriter ioDW)
   {
     LOG.info("Updating tags list!");
     final long start = ioDW.getFilePointer();
     ioDW.seek(myPosition);
-    writeTags(ioDW);
+    long len = writeTags(ioDW);
     ioDW.seek(start);
+    return len;
   }
 }

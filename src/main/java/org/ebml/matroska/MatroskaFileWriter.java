@@ -39,6 +39,7 @@ public class MatroskaFileWriter implements Closeable
 
   protected DataWriter ioDW;
 
+  private MatroskaSegment segmentElem = null;
   private MatroskaFileMetaSeek metaSeek;
   private MatroskaFileCues cueData;
   private MatroskaCluster cluster;
@@ -49,6 +50,8 @@ public class MatroskaFileWriter implements Closeable
   private boolean initialized = false;
 
   private boolean onlyAudioTracks;
+
+  private long clusterLen = 0;
 
   /**
    * @param outputDataWriter DataWriter to write out to.
@@ -130,29 +133,9 @@ public class MatroskaFileWriter implements Closeable
 
   void writeSegmentHeader()
   {
-    final MatroskaSegment segmentElem = new MatroskaSegment();
+    this.segmentElem = new MatroskaSegment();
     segmentElem.setUnknownSize(true);
     segmentElem.writeHeaderData(ioDW);
-  }
-
-  void writeSegmentInfo()
-  {
-    segmentInfoElem.update(ioDW);
-  }
-
-  void writeTracks()
-  {
-    tracks.update(ioDW);
-  }
-
-  void writeTags()
-  {
-    tags.update(ioDW);
-  }
-
-  public long getTimecodeScale()
-  {
-    return segmentInfoElem.getTimecodeScale();
   }
 
   /**
@@ -259,7 +242,7 @@ public class MatroskaFileWriter implements Closeable
     boolean addCue = !cluster.getTracks().contains(frame.getTrackNo());
     cluster.addFrame(frame);
 
-    if (addCue)
+    if (ioDW.isSeekable() && addCue)
     {
       cueData.addCue(ioDW.getFilePointer(), frame.getTimecode(), frame.getTrackNo());
     }
@@ -268,12 +251,12 @@ public class MatroskaFileWriter implements Closeable
   /**
    * Flushes pending content to disk and starts a new cluster. This is typically not necessary to call manually.
    */
-  public void flush()
+  private void flush()
   {
     initialize();
 
     LOG.debug("Cluster flushing, timecode {}", cluster.getClusterTimecode());
-    cluster.flush(ioDW);
+    clusterLen += cluster.flush(ioDW);
   }
 
   /**
@@ -286,11 +269,18 @@ public class MatroskaFileWriter implements Closeable
 
     if (ioDW.isSeekable())
     {
-      cueData.write(ioDW, metaSeek);
-      metaSeek.update(ioDW);
-      segmentInfoElem.update(ioDW);
-      tracks.update(ioDW);
-      tags.update(ioDW);
+      long segmentLen = 0;
+
+      segmentLen += cueData.write(ioDW, metaSeek);
+      segmentLen += metaSeek.update(ioDW);
+      segmentLen += segmentInfoElem.update(ioDW);
+      segmentLen += tracks.update(ioDW);
+      segmentLen += tags.update(ioDW);
+      segmentLen += clusterLen;
+
+      segmentElem.setUnknownSize(false);
+      segmentElem.setSize(segmentLen);
+      segmentElem.update(ioDW);
     }
   }
 }

@@ -51,7 +51,7 @@ public class MatroskaFileCues
     return cueTrackPositions;
   }
 
-  public Element write(DataWriter ioDW, MatroskaFileMetaSeek metaSeek)
+  public long write(DataWriter ioDW, MatroskaFileMetaSeek metaSeek)
   {
     long currentBytePositionInFile = ioDW.getFilePointer();
     LOG.debug("Writing matroska cues at file byte position [{}]", currentBytePositionInFile);
@@ -59,6 +59,6 @@ public class MatroskaFileCues
     LOG.debug("Done writing matroska cues, number of bytes was [{}]", numberOfBytesInCueData);
 
     metaSeek.addIndexedElement(cues, currentBytePositionInFile);
-    return cues;
+    return numberOfBytesInCueData;
   }
 }

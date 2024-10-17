@@ -30,6 +30,7 @@ import org.ebml.io.DataWriter;
  */
 public class MatroskaSegment extends MasterElement
 {
+  private long myPosition;
   protected boolean bUnknownSize = false;
 
   public MatroskaSegment()
@@ -44,6 +45,7 @@ public class MatroskaSegment extends MasterElement
   @Override
   public long writeHeaderData(final DataWriter writer)
   {
+    myPosition = writer.getFilePointer();
     long len = 0;
 
     final ByteBuffer type = getType();
@@ -62,13 +64,22 @@ public class MatroskaSegment extends MasterElement
     }
     else
     {
-      size = Element.makeEbmlCodedSize(getSize());
+      size = Element.makeEbmlCodedSize(getSize(), 5);
     }
 
     len += size.length;
     writer.write(ByteBuffer.wrap(size));
 
     return len;
+  }
+
+  public void update(final DataWriter ioDW)
+  {
+    LOG.debug("Updating segment header size");
+    final long startingPos = ioDW.getFilePointer();
+    ioDW.seek(myPosition);
+    writeHeaderData(ioDW);
+    ioDW.seek(startingPos);
   }
 
   /**
