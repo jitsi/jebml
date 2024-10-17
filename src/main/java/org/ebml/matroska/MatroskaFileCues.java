@@ -45,7 +45,7 @@ public class MatroskaFileCues
     cueTrackPositions.addChildElement(cueTrack);
 
     UnsignedIntegerElement cueClusterPosition = MatroskaDocTypes.CueClusterPosition.getInstance();
-    cueClusterPosition.setValue(getPositionRelativeToSegmentEbmlElement(positionInFile));
+    cueClusterPosition.setValue(positionInFile - endOfEbmlHeaderBytePosition);
     cueTrackPositions.addChildElement(cueClusterPosition);
 
     return cueTrackPositions;
@@ -60,10 +60,5 @@ public class MatroskaFileCues
 
     metaSeek.addIndexedElement(cues, currentBytePositionInFile);
     return cues;
-  }
-
-  private long getPositionRelativeToSegmentEbmlElement(long currentBytePositionInFile)
-  {
-    return currentBytePositionInFile - endOfEbmlHeaderBytePosition;
   }
 }

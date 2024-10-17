@@ -254,14 +254,15 @@ public class MatroskaFileWriter implements Closeable
         || (frame.isKeyFrame() && videoTrackNumbers.contains(frame.getTrackNo())))
     {
       flush();
-
-      if (ioDW.isSeekable())
-      {
-        final long clusterPos = ioDW.getFilePointer();
-        cueData.addCue(clusterPos, frame.getTimecode(), frame.getTrackNo());
-      }
     }
+
+    boolean addCue = !cluster.getTracks().contains(frame.getTrackNo());
     cluster.addFrame(frame);
+
+    if (addCue)
+    {
+      cueData.addCue(ioDW.getFilePointer(), frame.getTimecode(), frame.getTrackNo());
+    }
   }
 
   /**
