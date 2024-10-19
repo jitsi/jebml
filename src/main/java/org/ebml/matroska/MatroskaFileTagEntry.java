@@ -33,6 +33,8 @@ public class MatroskaFileTagEntry
   public ArrayList<Long> trackUID = new ArrayList<>();
   public ArrayList<Long> chapterUID = new ArrayList<>();
   public ArrayList<Long> attachmentUID = new ArrayList<>();
+  public ArrayList<Long> editionUID = new ArrayList<>();
+
   public List<MatroskaFileSimpleTag> simpleTags = new ArrayList<>();
 
   public void addSimpleTag(final MatroskaFileSimpleTag simpleTag)
@@ -45,6 +47,26 @@ public class MatroskaFileTagEntry
     MasterElement tagEntryElem = MatroskaDocTypes.Tag.getInstance();
 
     MasterElement targetsEntryElem = MatroskaDocTypes.Targets.getInstance();
+    trackUID.forEach((uid) -> {
+      UnsignedIntegerElement trackUIDElem = MatroskaDocTypes.TagTrackUID.getInstance();
+      trackUIDElem.setValue(uid);
+      targetsEntryElem.addChildElement(trackUIDElem);
+    });
+    chapterUID.forEach((uid) -> {
+      UnsignedIntegerElement chapterUIDElem = MatroskaDocTypes.TagChapterUID.getInstance();
+      chapterUIDElem.setValue(uid);
+      targetsEntryElem.addChildElement(chapterUIDElem);
+    });
+    attachmentUID.forEach((uid) -> {
+      UnsignedIntegerElement attachmentUIDElem = MatroskaDocTypes.TagAttachmentUID.getInstance();
+      attachmentUIDElem.setValue(uid);
+      targetsEntryElem.addChildElement(attachmentUIDElem);
+    });
+    editionUID.forEach((uid) -> {
+      UnsignedIntegerElement editionUIDElem = MatroskaDocTypes.TagEditionUID.getInstance();
+      editionUIDElem.setValue(uid);
+      targetsEntryElem.addChildElement(editionUIDElem);
+    });
     tagEntryElem.addChildElement(targetsEntryElem);
 
     for (MatroskaFileSimpleTag simpleTag : simpleTags)
