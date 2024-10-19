@@ -22,6 +22,7 @@ package org.ebml.matroska;
 import java.io.Closeable;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.*;
 
 import org.ebml.MasterElement;
 import org.ebml.StringElement;
@@ -52,6 +53,9 @@ public class MatroskaFileWriter implements Closeable
   private boolean onlyAudioTracks;
 
   private long clusterLen = 0;
+
+  private long minSegmentTimecode = Long.MAX_VALUE;
+  private long maxSegmentTimecode = Long.MIN_VALUE;
 
   /**
    * @param outputDataWriter DataWriter to write out to.
@@ -241,6 +245,8 @@ public class MatroskaFileWriter implements Closeable
 
     boolean addCue = !cluster.getTracks().contains(frame.getTrackNo());
     cluster.addFrame(frame);
+    minSegmentTimecode = Math.min(minSegmentTimecode, frame.getTimecode());
+    maxSegmentTimecode = Math.max(maxSegmentTimecode, frame.getTimecode());
 
     if (ioDW.isSeekable() && addCue)
     {
@@ -273,7 +279,10 @@ public class MatroskaFileWriter implements Closeable
 
       segmentLen += cueData.write(ioDW, metaSeek);
       segmentLen += metaSeek.update(ioDW);
+
+      segmentInfoElem.setDuration(maxSegmentTimecode - minSegmentTimecode);
       segmentLen += segmentInfoElem.update(ioDW);
+
       segmentLen += tracks.update(ioDW);
       segmentLen += tags.update(ioDW);
       segmentLen += clusterLen;
