@@ -25,14 +25,6 @@ public final class MatroskaDocTypes
   public static final ProtoType<UnsignedIntegerElement> DocTypeReadVersion = new ProtoType<>(UnsignedIntegerElement.class, "DocTypeReadVersion", new byte[] {(byte) 0x42, (byte) 0x85 }, 1);
   public static final ProtoType<BinaryElement> Void = new ProtoType<>(BinaryElement.class, "Void", new byte[] {(byte) 0xEC }, -1);
   public static final ProtoType<BinaryElement> CRC_32 = new ProtoType<>(BinaryElement.class, "CRC_32", new byte[] {(byte) 0xBF }, -1);
-  public static final ProtoType<MasterElement> SignatureSlot = new ProtoType<>(MasterElement.class, "SignatureSlot", new byte[] {(byte) 0x1B, (byte) 0x53, (byte) 0x86, (byte) 0x67 }, -1);
-  public static final ProtoType<UnsignedIntegerElement> SignatureAlgo = new ProtoType<>(UnsignedIntegerElement.class, "SignatureAlgo", new byte[] {(byte) 0x7E, (byte) 0x8A }, 1);
-  public static final ProtoType<UnsignedIntegerElement> SignatureHash = new ProtoType<>(UnsignedIntegerElement.class, "SignatureHash", new byte[] {(byte) 0x7E, (byte) 0x9A }, 1);
-  public static final ProtoType<BinaryElement> SignaturePublicKey = new ProtoType<>(BinaryElement.class, "SignaturePublicKey", new byte[] {(byte) 0x7E, (byte) 0xA5 }, 1);
-  public static final ProtoType<BinaryElement> Signature = new ProtoType<>(BinaryElement.class, "Signature", new byte[] {(byte) 0x7E, (byte) 0xB5 }, 1);
-  public static final ProtoType<MasterElement> SignatureElements = new ProtoType<>(MasterElement.class, "SignatureElements", new byte[] {(byte) 0x7E, (byte) 0x5B }, 1);
-  public static final ProtoType<MasterElement> SignatureElementList = new ProtoType<>(MasterElement.class, "SignatureElementList", new byte[] {(byte) 0x7E, (byte) 0x7B }, 2);
-  public static final ProtoType<BinaryElement> SignedElement = new ProtoType<>(BinaryElement.class, "SignedElement", new byte[] {(byte) 0x65, (byte) 0x32 }, 3);
   public static final ProtoType<MasterElement> Segment = new ProtoType<>(MasterElement.class, "Segment", new byte[] {(byte) 0x18, (byte) 0x53, (byte) 0x80, (byte) 0x67 }, 0);
   public static final ProtoType<MasterElement> SeekHead = new ProtoType<>(MasterElement.class, "SeekHead", new byte[] {(byte) 0x11, (byte) 0x4D, (byte) 0x9B, (byte) 0x74 }, 1);
   public static final ProtoType<MasterElement> Seek = new ProtoType<>(MasterElement.class, "Seek", new byte[] {(byte) 0x4D, (byte) 0xBB }, 2);
@@ -95,6 +87,11 @@ public final class MatroskaDocTypes
   public static final ProtoType<UnsignedIntegerElement> FlagEnabled = new ProtoType<>(UnsignedIntegerElement.class, "FlagEnabled", new byte[] {(byte) 0xB9 }, 3);
   public static final ProtoType<UnsignedIntegerElement> FlagDefault = new ProtoType<>(UnsignedIntegerElement.class, "FlagDefault", new byte[] {(byte) 0x88 }, 3);
   public static final ProtoType<UnsignedIntegerElement> FlagForced = new ProtoType<>(UnsignedIntegerElement.class, "FlagForced", new byte[] {(byte) 0x55, (byte) 0xAA }, 3);
+  public static final ProtoType<UnsignedIntegerElement> FlagHearingImpaired = new ProtoType<>(UnsignedIntegerElement.class, "FlagHearingImpaired", new byte[] {(byte) 0x55, (byte) 0xAB }, 3);
+  public static final ProtoType<UnsignedIntegerElement> FlagVisualImpaired = new ProtoType<>(UnsignedIntegerElement.class, "FlagVisualImpaired", new byte[] {(byte) 0x55, (byte) 0xAC }, 3);
+  public static final ProtoType<UnsignedIntegerElement> FlagTextDescriptions = new ProtoType<>(UnsignedIntegerElement.class, "FlagTextDescriptions", new byte[] {(byte) 0x55, (byte) 0xAD }, 3);
+  public static final ProtoType<UnsignedIntegerElement> FlagOriginal = new ProtoType<>(UnsignedIntegerElement.class, "FlagOriginal", new byte[] {(byte) 0x55, (byte) 0xAE }, 3);
+  public static final ProtoType<UnsignedIntegerElement> FlagCommentary = new ProtoType<>(UnsignedIntegerElement.class, "FlagCommentary", new byte[] {(byte) 0x55, (byte) 0xAF }, 3);
   public static final ProtoType<UnsignedIntegerElement> FlagLacing = new ProtoType<>(UnsignedIntegerElement.class, "FlagLacing", new byte[] {(byte) 0x9C }, 3);
   public static final ProtoType<UnsignedIntegerElement> MinCache = new ProtoType<>(UnsignedIntegerElement.class, "MinCache", new byte[] {(byte) 0x6D, (byte) 0xE7 }, 3);
   public static final ProtoType<UnsignedIntegerElement> MaxCache = new ProtoType<>(UnsignedIntegerElement.class, "MaxCache", new byte[] {(byte) 0x6D, (byte) 0xF8 }, 3);
@@ -103,6 +100,11 @@ public final class MatroskaDocTypes
   public static final ProtoType<FloatElement> TrackTimecodeScale = new ProtoType<>(FloatElement.class, "TrackTimecodeScale", new byte[] {(byte) 0x23, (byte) 0x31, (byte) 0x4F }, 3);
   public static final ProtoType<SignedIntegerElement> TrackOffset = new ProtoType<>(SignedIntegerElement.class, "TrackOffset", new byte[] {(byte) 0x53, (byte) 0x7F }, 3);
   public static final ProtoType<UnsignedIntegerElement> MaxBlockAdditionID = new ProtoType<>(UnsignedIntegerElement.class, "MaxBlockAdditionID", new byte[] {(byte) 0x55, (byte) 0xEE }, 3);
+  public static final ProtoType<UnsignedIntegerElement> BlockAdditionMapping = new ProtoType<>(UnsignedIntegerElement.class, "BlockAdditionMapping", new byte[] {(byte) 0x41, (byte) 0xE4 }, 3);
+  public static final ProtoType<UnsignedIntegerElement> BlockAddIDValue = new ProtoType<>(UnsignedIntegerElement.class, "BlockAddIDValue", new byte[] {(byte) 0x41, (byte) 0xF0 }, 3);
+  public static final ProtoType<UnsignedIntegerElement> BlockAddIDName = new ProtoType<>(UnsignedIntegerElement.class, "BlockAddIDName", new byte[] {(byte) 0x41, (byte) 0xA4 }, 3);
+  public static final ProtoType<UnsignedIntegerElement> BlockAddIDType = new ProtoType<>(UnsignedIntegerElement.class, "BlockAddIDType", new byte[] {(byte) 0x41, (byte) 0xE7 }, 3);
+  public static final ProtoType<UnsignedIntegerElement> BlockAddIDExtraData = new ProtoType<>(UnsignedIntegerElement.class, "BlockAddIDExtraData", new byte[] {(byte) 0x41, (byte) 0xED }, 3);
   public static final ProtoType<UTF8StringElement> Name = new ProtoType<>(UTF8StringElement.class, "Name", new byte[] {(byte) 0x53, (byte) 0x6E }, 3);
   public static final ProtoType<StringElement> Language = new ProtoType<>(StringElement.class, "Language", new byte[] {(byte) 0x22, (byte) 0xB5, (byte) 0x9C }, 3);
   public static final ProtoType<StringElement> LanguageIETF = new ProtoType<>(StringElement.class, "LanguageIETF", new byte[] {(byte) 0x22, (byte) 0xB5, (byte) 0x9D }, 3);
@@ -177,6 +179,7 @@ public final class MatroskaDocTypes
   public static final ProtoType<UnsignedIntegerElement> Channels = new ProtoType<>(UnsignedIntegerElement.class, "Channels", new byte[] {(byte) 0x9F }, 4);
   public static final ProtoType<BinaryElement> ChannelPositions = new ProtoType<>(BinaryElement.class, "ChannelPositions", new byte[] {(byte) 0x7D, (byte) 0x7B }, 4);
   public static final ProtoType<UnsignedIntegerElement> BitDepth = new ProtoType<>(UnsignedIntegerElement.class, "BitDepth", new byte[] {(byte) 0x62, (byte) 0x64 }, 4);
+  public static final ProtoType<UnsignedIntegerElement> Emphasis = new ProtoType<>(UnsignedIntegerElement.class, "Emphasis", new byte[] {(byte) 0x52, (byte) 0xF1 }, 4);
   public static final ProtoType<MasterElement> TrackOperation = new ProtoType<>(MasterElement.class, "TrackOperation", new byte[] {(byte) 0xE2 }, 3);
   public static final ProtoType<MasterElement> TrackCombinePlanes = new ProtoType<>(MasterElement.class, "TrackCombinePlanes", new byte[] {(byte) 0xE3 }, 4);
   public static final ProtoType<MasterElement> TrackPlane = new ProtoType<>(MasterElement.class, "TrackPlane", new byte[] {(byte) 0xE4 }, 5);
@@ -237,6 +240,9 @@ public final class MatroskaDocTypes
   public static final ProtoType<UnsignedIntegerElement> EditionFlagHidden = new ProtoType<>(UnsignedIntegerElement.class, "EditionFlagHidden", new byte[] {(byte) 0x45, (byte) 0xBD }, 3);
   public static final ProtoType<UnsignedIntegerElement> EditionFlagDefault = new ProtoType<>(UnsignedIntegerElement.class, "EditionFlagDefault", new byte[] {(byte) 0x45, (byte) 0xDB }, 3);
   public static final ProtoType<UnsignedIntegerElement> EditionFlagOrdered = new ProtoType<>(UnsignedIntegerElement.class, "EditionFlagOrdered", new byte[] {(byte) 0x45, (byte) 0xDD }, 3);
+  public static final ProtoType<UnsignedIntegerElement> EditionDisplay = new ProtoType<>(UnsignedIntegerElement.class, "EditionDisplay", new byte[] {(byte) 0x45, (byte) 0x20 }, 3);
+  public static final ProtoType<UnsignedIntegerElement> EditionString = new ProtoType<>(UnsignedIntegerElement.class, "EditionString", new byte[] {(byte) 0x45, (byte) 0x21 }, 3);
+  public static final ProtoType<UnsignedIntegerElement> EditionLanguageIETF = new ProtoType<>(UnsignedIntegerElement.class, "EditionLanguageIETF", new byte[] {(byte) 0x45, (byte) 0xE4 }, 3);
   public static final ProtoType<MasterElement> ChapterAtom = new ProtoType<>(MasterElement.class, "ChapterAtom", new byte[] {(byte) 0xB6 }, 3);
   public static final ProtoType<UnsignedIntegerElement> ChapterUID = new ProtoType<>(UnsignedIntegerElement.class, "ChapterUID", new byte[] {(byte) 0x73, (byte) 0xC4 }, 4);
   public static final ProtoType<UTF8StringElement> ChapterStringUID = new ProtoType<>(UTF8StringElement.class, "ChapterStringUID", new byte[] {(byte) 0x56, (byte) 0x54 }, 4);
@@ -245,6 +251,7 @@ public final class MatroskaDocTypes
   public static final ProtoType<UnsignedIntegerElement> ChapterFlagHidden = new ProtoType<>(UnsignedIntegerElement.class, "ChapterFlagHidden", new byte[] {(byte) 0x98 }, 4);
   public static final ProtoType<UnsignedIntegerElement> ChapterFlagEnabled = new ProtoType<>(UnsignedIntegerElement.class, "ChapterFlagEnabled", new byte[] {(byte) 0x45, (byte) 0x98 }, 4);
   public static final ProtoType<BinaryElement> ChapterSegmentUID = new ProtoType<>(BinaryElement.class, "ChapterSegmentUID", new byte[] {(byte) 0x6E, (byte) 0x67 }, 4);
+  public static final ProtoType<BinaryElement> ChapterSkipType = new ProtoType<>(BinaryElement.class, "ChapterSkipType", new byte[] {(byte) 0x45, (byte) 0x88 }, 4);
   public static final ProtoType<UnsignedIntegerElement> ChapterSegmentEditionUID = new ProtoType<>(UnsignedIntegerElement.class, "ChapterSegmentEditionUID", new byte[] {(byte) 0x6E, (byte) 0xBC }, 4);
   public static final ProtoType<UnsignedIntegerElement> ChapterPhysicalEquiv = new ProtoType<>(UnsignedIntegerElement.class, "ChapterPhysicalEquiv", new byte[] {(byte) 0x63, (byte) 0xC3 }, 4);
   public static final ProtoType<MasterElement> ChapterTrack = new ProtoType<>(MasterElement.class, "ChapterTrack", new byte[] {(byte) 0x8F }, 4);
@@ -274,6 +281,7 @@ public final class MatroskaDocTypes
   public static final ProtoType<StringElement> TagLanguage = new ProtoType<>(StringElement.class, "TagLanguage", new byte[] {(byte) 0x44, (byte) 0x7A }, 4);
   public static final ProtoType<StringElement> TagLanguageIETF = new ProtoType<>(StringElement.class, "TagLanguageIETF", new byte[] {(byte) 0x44, (byte) 0x7B }, 4);
   public static final ProtoType<UnsignedIntegerElement> TagDefault = new ProtoType<>(UnsignedIntegerElement.class, "TagDefault", new byte[] {(byte) 0x44, (byte) 0x84 }, 4);
+  public static final ProtoType<UnsignedIntegerElement> TagDefaultBogus = new ProtoType<>(UnsignedIntegerElement.class, "TagDefaultBogus", new byte[] {(byte) 0x44, (byte) 0xB4 }, 4);
   public static final ProtoType<UTF8StringElement> TagString = new ProtoType<>(UTF8StringElement.class, "TagString", new byte[] {(byte) 0x44, (byte) 0x87 }, 4);
   public static final ProtoType<BinaryElement> TagBinary = new ProtoType<>(BinaryElement.class, "TagBinary", new byte[] {(byte) 0x44, (byte) 0x85 }, 4);
 

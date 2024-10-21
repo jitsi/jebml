@@ -53,14 +53,16 @@ public class MatroskaFileMetaSeek
    * 
    * @param ioDW the data stream containing this object
    */
-  public void update(final DataWriter ioDW)
+  public long update(final DataWriter ioDW)
   {
     assert ioDW.isSeekable();
     final long pos = ioDW.getFilePointer();
     ioDW.seek(myPosition);
-    write(ioDW);
+    long len = write(ioDW);
     ioDW.seek(pos);
     LOG.debug("Updated metaseek section.");
+
+    return len;
   }
 
   /**

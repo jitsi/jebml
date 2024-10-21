@@ -448,10 +448,13 @@ public class MatroskaFile
       {
         parseNextCluster(level1);
         clusterReadIndex++;
+        level1.skipData(ioDS);
       }
 
-      level1.skipData(ioDS);
-      level1 = ((MasterElement) level0).readNextChild(reader);
+      if (frameQueue.isEmpty())
+      {
+        level1 = ((MasterElement) level0).readNextChild(reader);
+      }
     }
   }
 

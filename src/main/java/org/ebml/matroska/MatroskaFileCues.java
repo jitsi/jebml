@@ -45,13 +45,13 @@ public class MatroskaFileCues
     cueTrackPositions.addChildElement(cueTrack);
 
     UnsignedIntegerElement cueClusterPosition = MatroskaDocTypes.CueClusterPosition.getInstance();
-    cueClusterPosition.setValue(getPositionRelativeToSegmentEbmlElement(positionInFile));
+    cueClusterPosition.setValue(positionInFile - endOfEbmlHeaderBytePosition);
     cueTrackPositions.addChildElement(cueClusterPosition);
 
     return cueTrackPositions;
   }
 
-  public Element write(DataWriter ioDW, MatroskaFileMetaSeek metaSeek)
+  public long write(DataWriter ioDW, MatroskaFileMetaSeek metaSeek)
   {
     long currentBytePositionInFile = ioDW.getFilePointer();
     LOG.debug("Writing matroska cues at file byte position [{}]", currentBytePositionInFile);
@@ -59,11 +59,6 @@ public class MatroskaFileCues
     LOG.debug("Done writing matroska cues, number of bytes was [{}]", numberOfBytesInCueData);
 
     metaSeek.addIndexedElement(cues, currentBytePositionInFile);
-    return cues;
-  }
-
-  private long getPositionRelativeToSegmentEbmlElement(long currentBytePositionInFile)
-  {
-    return currentBytePositionInFile - endOfEbmlHeaderBytePosition;
+    return numberOfBytesInCueData;
   }
 }

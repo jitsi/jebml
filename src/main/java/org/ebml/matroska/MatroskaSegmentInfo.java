@@ -54,17 +54,20 @@ public class MatroskaSegmentInfo
 
     final long len = segmentInfoElem.writeElement(ioDW);
     final VoidElement spacer = new VoidElement(BLOCK_SIZE - len);
-    spacer.writeElement(ioDW);
-    return 1;
+    long voidLen = spacer.writeElement(ioDW);
+
+    assert len + voidLen == BLOCK_SIZE;
+    return BLOCK_SIZE;
   }
 
-  public void update(final DataWriter ioDW)
+  public long update(final DataWriter ioDW)
   {
     LOG.debug("Updating segment info header");
     final long startingPos = ioDW.getFilePointer();
     ioDW.seek(myPosition);
-    writeElement(ioDW);
+    long len = writeElement(ioDW);
     ioDW.seek(startingPos);
+    return len;
   }
 
   public double getDuration()

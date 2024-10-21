@@ -22,6 +22,7 @@ package org.ebml.matroska;
 import java.io.Closeable;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.*;
 
 import org.ebml.MasterElement;
 import org.ebml.StringElement;
@@ -39,6 +40,7 @@ public class MatroskaFileWriter implements Closeable
 
   protected DataWriter ioDW;
 
+  private MatroskaSegment segmentElem = null;
   private MatroskaFileMetaSeek metaSeek;
   private MatroskaFileCues cueData;
   private MatroskaCluster cluster;
@@ -49,6 +51,11 @@ public class MatroskaFileWriter implements Closeable
   private boolean initialized = false;
 
   private boolean onlyAudioTracks;
+
+  private long clusterLen = 0;
+
+  private long minSegmentTimecode = Long.MAX_VALUE;
+  private long maxSegmentTimecode = Long.MIN_VALUE;
 
   /**
    * @param outputDataWriter DataWriter to write out to.
@@ -130,29 +137,9 @@ public class MatroskaFileWriter implements Closeable
 
   void writeSegmentHeader()
   {
-    final MatroskaSegment segmentElem = new MatroskaSegment();
+    this.segmentElem = new MatroskaSegment();
     segmentElem.setUnknownSize(true);
     segmentElem.writeHeaderData(ioDW);
-  }
-
-  void writeSegmentInfo()
-  {
-    segmentInfoElem.update(ioDW);
-  }
-
-  void writeTracks()
-  {
-    tracks.update(ioDW);
-  }
-
-  void writeTags()
-  {
-    tags.update(ioDW);
-  }
-
-  public long getTimecodeScale()
-  {
-    return segmentInfoElem.getTimecodeScale();
   }
 
   /**
@@ -254,25 +241,28 @@ public class MatroskaFileWriter implements Closeable
         || (frame.isKeyFrame() && videoTrackNumbers.contains(frame.getTrackNo())))
     {
       flush();
-
-      if (ioDW.isSeekable())
-      {
-        final long clusterPos = ioDW.getFilePointer();
-        cueData.addCue(clusterPos, frame.getTimecode(), frame.getTrackNo());
-      }
     }
+
+    boolean addCue = !cluster.getTracks().contains(frame.getTrackNo());
     cluster.addFrame(frame);
+    minSegmentTimecode = Math.min(minSegmentTimecode, frame.getTimecode());
+    maxSegmentTimecode = Math.max(maxSegmentTimecode, frame.getTimecode());
+
+    if (ioDW.isSeekable() && addCue)
+    {
+      cueData.addCue(ioDW.getFilePointer(), frame.getTimecode(), frame.getTrackNo());
+    }
   }
 
   /**
    * Flushes pending content to disk and starts a new cluster. This is typically not necessary to call manually.
    */
-  public void flush()
+  private void flush()
   {
     initialize();
 
     LOG.debug("Cluster flushing, timecode {}", cluster.getClusterTimecode());
-    cluster.flush(ioDW);
+    clusterLen += cluster.flush(ioDW);
   }
 
   /**
@@ -285,11 +275,21 @@ public class MatroskaFileWriter implements Closeable
 
     if (ioDW.isSeekable())
     {
-      cueData.write(ioDW, metaSeek);
-      metaSeek.update(ioDW);
-      segmentInfoElem.update(ioDW);
-      tracks.update(ioDW);
-      tags.update(ioDW);
+      long segmentLen = 0;
+
+      segmentLen += cueData.write(ioDW, metaSeek);
+      segmentLen += metaSeek.update(ioDW);
+
+      segmentInfoElem.setDuration(maxSegmentTimecode - minSegmentTimecode);
+      segmentLen += segmentInfoElem.update(ioDW);
+
+      segmentLen += tracks.update(ioDW);
+      segmentLen += tags.update(ioDW);
+      segmentLen += clusterLen;
+
+      segmentElem.setUnknownSize(false);
+      segmentElem.setSize(segmentLen);
+      segmentElem.update(ioDW);
     }
   }
 }
