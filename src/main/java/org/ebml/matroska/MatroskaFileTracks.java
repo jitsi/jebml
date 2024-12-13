@@ -41,15 +41,13 @@ public class MatroskaFileTracks
 
     long size = tracksElem.writeElement(ioDW);
 
-    if (BLOCK_SIZE > tracksElem.getTotalSize())
+    if (BLOCK_SIZE > tracksElem.getTotalSize() && ioDW.isSeekable())
     {
       new VoidElement(BLOCK_SIZE - tracksElem.getTotalSize()).writeElement(ioDW);
       return BLOCK_SIZE;
     }
-    else
-    {
-        return size;
-    }
+
+    return size;
   }
 
   public long update(final DataWriter ioDW, boolean checkBlockSize)

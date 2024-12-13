@@ -41,15 +41,13 @@ public class MatroskaFileTags
 
     long len = tagsElem.writeElement(ioDW);
 
-    if (BLOCK_SIZE > tagsElem.getTotalSize())
+    if (BLOCK_SIZE > tagsElem.getTotalSize() && ioDW.isSeekable())
     {
       new VoidElement(BLOCK_SIZE - tagsElem.getTotalSize()).writeElement(ioDW);
       return BLOCK_SIZE;
     }
-    else
-    {
-      return len;
-    }
+
+    return len;
   }
 
   public long update(final DataWriter ioDW, boolean checkBlockSize)
