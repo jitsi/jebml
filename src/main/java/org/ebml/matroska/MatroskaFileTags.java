@@ -21,7 +21,8 @@ public class MatroskaFileTags
     tags.add(tag);
   }
 
-  public long writeTags(final DataWriter ioDW)
+  public long writeTags(final DataWriter ioDW, boolean checkBlockSize)
+    throws VoidOutOfBoundException
   {
     myPosition = ioDW.getFilePointer();
     final MasterElement tagsElem = MatroskaDocTypes.Tags.getInstance();
@@ -30,21 +31,34 @@ public class MatroskaFileTags
     {
       tagsElem.addChildElement(tag.toElement());
     }
+
+    if (checkBlockSize && BLOCK_SIZE < tagsElem.getTotalSize())
+    {
+      LOG.warn("Tags element size exceeds block size!");
+
+      throw new VoidOutOfBoundException();
+    }
+
     long len = tagsElem.writeElement(ioDW);
-    if (ioDW.isSeekable())
+
+    if (BLOCK_SIZE > tagsElem.getTotalSize())
     {
       new VoidElement(BLOCK_SIZE - tagsElem.getTotalSize()).writeElement(ioDW);
       return BLOCK_SIZE;
     }
-    return len;
+    else
+    {
+      return len;
+    }
   }
 
-  public long update(final DataWriter ioDW)
+  public long update(final DataWriter ioDW, boolean checkBlockSize)
+    throws VoidOutOfBoundException
   {
     LOG.info("Updating tags list!");
     final long start = ioDW.getFilePointer();
     ioDW.seek(myPosition);
-    long len = writeTags(ioDW);
+    long len = writeTags(ioDW, checkBlockSize);
     ioDW.seek(start);
     return len;
   }

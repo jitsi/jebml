@@ -21,7 +21,8 @@ public class MatroskaFileTracks
     tracks.add(track);
   }
 
-  public long writeTracks(final DataWriter ioDW)
+  public long writeTracks(final DataWriter ioDW, boolean checkBlockSize)
+    throws VoidOutOfBoundException
   {
     myPosition = ioDW.getFilePointer();
     final MasterElement tracksElem = MatroskaDocTypes.Tracks.getInstance();
@@ -30,18 +31,34 @@ public class MatroskaFileTracks
     {
       tracksElem.addChildElement(track.toElement());
     }
-    tracksElem.writeElement(ioDW);
-    assert BLOCK_SIZE > tracksElem.getTotalSize();
-    new VoidElement(BLOCK_SIZE - tracksElem.getTotalSize()).writeElement(ioDW);
-    return BLOCK_SIZE;
+
+    if (checkBlockSize && BLOCK_SIZE < tracksElem.getTotalSize())
+    {
+      LOG.warn("Tracks element size exceeds block size!");
+
+      throw new VoidOutOfBoundException();
+    }
+
+    long size = tracksElem.writeElement(ioDW);
+
+    if (BLOCK_SIZE > tracksElem.getTotalSize())
+    {
+      new VoidElement(BLOCK_SIZE - tracksElem.getTotalSize()).writeElement(ioDW);
+      return BLOCK_SIZE;
+    }
+    else
+    {
+        return size;
+    }
   }
 
-  public long update(final DataWriter ioDW)
+  public long update(final DataWriter ioDW, boolean checkBlockSize)
+    throws VoidOutOfBoundException
   {
     LOG.info("Updating tracks list!");
     final long start = ioDW.getFilePointer();
     ioDW.seek(myPosition);
-    long len = writeTracks(ioDW);
+    long len = writeTracks(ioDW, checkBlockSize);
     ioDW.seek(start);
     return len;
   }
