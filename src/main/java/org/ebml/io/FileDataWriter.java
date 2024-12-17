@@ -19,6 +19,9 @@
  */
 package org.ebml.io;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -31,6 +34,8 @@ import java.nio.file.StandardCopyOption;
 
 public class FileDataWriter implements DataWriter, Closeable
 {
+  private static final Logger LOG = LoggerFactory.getLogger(FileDataWriter.class);
+
   RandomAccessFile file = null;
   FileChannel fc = null;
 
@@ -63,6 +68,7 @@ public class FileDataWriter implements DataWriter, Closeable
     }
     catch (final IOException ex)
     {
+      LOG.error("Failed to write byte", ex);
       return 0;
     }
   }
@@ -76,6 +82,7 @@ public class FileDataWriter implements DataWriter, Closeable
     }
     catch (final IOException ex)
     {
+      LOG.error("Failed to write buffer", ex);
       return 0;
     }
   }
@@ -89,6 +96,7 @@ public class FileDataWriter implements DataWriter, Closeable
     }
     catch (final IOException ex)
     {
+      LOG.error("Failed to get length", ex);
       return -1;
     }
   }
@@ -102,6 +110,7 @@ public class FileDataWriter implements DataWriter, Closeable
     }
     catch (final IOException ex)
     {
+      LOG.error("Failed to get pointer", ex);
       return -1;
     }
   }
@@ -122,6 +131,7 @@ public class FileDataWriter implements DataWriter, Closeable
     }
     catch (final IOException ex)
     {
+      LOG.error("Failed to seek", ex);
       return -1;
     }
   }
