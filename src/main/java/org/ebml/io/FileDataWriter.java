@@ -162,5 +162,9 @@ public class FileDataWriter implements DataWriter, Closeable
             throws IOException
     {
       Files.move(Path.of(dw.filename), Path.of(this.filename), StandardCopyOption.REPLACE_EXISTING);
+
+      // recreate after we move the new file
+      file = new RandomAccessFile(filename, "rw");
+      fc = file.getChannel();
     }
 }
