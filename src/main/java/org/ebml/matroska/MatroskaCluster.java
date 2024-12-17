@@ -44,7 +44,7 @@ class MatroskaCluster
   private final List<Long> sliencedTracks = new ArrayList<>();
 
   private long clusterTimecode = Long.MAX_VALUE;
-  private long lastTimecode = 0;
+  private long maxFrameTimecode = 0;
   private long durationLimit = 500;
 
   public MatroskaCluster()
@@ -69,14 +69,19 @@ class MatroskaCluster
     {
       clusterTimecode = frame.getTimecode();
     }
-    lastTimecode = frame.getTimecode();
+    maxFrameTimecode = Math.max(maxFrameTimecode, frame.getTimecode());
     frames.add(frame);
     tracks.add(frame.getTrackNo());
   }
 
-  public boolean isFlushNeeded()
+  public boolean isFlushNeeded(long nextFrameTimecode)
   {
-    return (lastTimecode - clusterTimecode) > durationLimit;
+    return
+            // The next frame will exceed the duration limit
+            (nextFrameTimecode - clusterTimecode) > durationLimit ||
+            // The next frame is older, and would lower the cluster timecode enough to overflow the frame timecode
+            // for one of the existing frames.
+                    maxFrameTimecode - nextFrameTimecode > Short.MAX_VALUE;
   }
 
   public long flush(final DataWriter ioDW)
@@ -136,6 +141,7 @@ class MatroskaCluster
       frames.clear();
       tracks.clear();
       clusterTimecode = Long.MAX_VALUE;
+      maxFrameTimecode = Long.MIN_VALUE;
     }
   }
 

@@ -237,7 +237,7 @@ public class MatroskaFileWriter implements Closeable
   public void addFrame(final MatroskaFileFrame frame)
   {
     initialize();
-    if ((onlyAudioTracks && cluster.isFlushNeeded())
+    if ((onlyAudioTracks && cluster.isFlushNeeded(frame.getTimecode()))
         || (frame.isKeyFrame() && videoTrackNumbers.contains(frame.getTrackNo())))
     {
       flush();
