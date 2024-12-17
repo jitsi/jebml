@@ -20,9 +20,6 @@
 package org.ebml.matroska;
 
 import java.io.Closeable;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,7 +27,6 @@ import org.ebml.MasterElement;
 import org.ebml.StringElement;
 import org.ebml.UnsignedIntegerElement;
 import org.ebml.io.DataWriter;
-import org.ebml.io.FileDataWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,26 +87,13 @@ public class MatroskaFileWriter implements Closeable
     segmentInfoElem.writeElement(ioDW);
 
     metaSeek.addIndexedElement(MatroskaDocTypes.Tracks.getType(), ioDW.getFilePointer());
-    try
-    {
-      tracks.writeTracks(ioDW, false);
-    }
-    catch (VoidOutOfBoundException e)
-    {
-      // when initializing tracks are empty so this should never happen
-      LOG.error("Tracks element size exceeds block size?", e);
-    }
+    tracks.writeTracks(ioDW);
 
     metaSeek.addIndexedElement(MatroskaDocTypes.Tags.getType(), ioDW.getFilePointer());
-    try
-    {
-        tags.writeTags(ioDW, false);
-    }
-    catch (VoidOutOfBoundException e)
-    {
-      // when initializing tags are empty so this should never happen
-      LOG.error("Tags element size exceeds block size?", e);
-    }
+    tags.writeTags(ioDW);
+
+    // If tracks got expanded beyond the void element, tags needs to adjust its pointer
+    tracks.addPropertyChangeListener(tags);
 
     cluster = new MatroskaCluster();
     metaSeek.addIndexedElement(MatroskaDocTypes.Cluster.getType(), ioDW.getFilePointer());
@@ -302,65 +285,13 @@ public class MatroskaFileWriter implements Closeable
       segmentInfoElem.setDuration(maxSegmentTimecode - minSegmentTimecode);
       segmentLen += segmentInfoElem.update(ioDW);
 
-      try
-      {
-          segmentLen += tracks.update(ioDW, true);
-      }
-      catch (VoidOutOfBoundException e)
-      {
-        LOG.info("Tracks element size exceeds block size. Will expand file.");
-
-          try (FileDataWriter dw = copyBeginningOfFile())
-          {
-            segmentLen += tracks.update(dw, false);
-            copyEndOfFileAndClose(dw);
-          }
-          catch (VoidOutOfBoundException | IOException ex)
-          {
-            throw new RuntimeException(ex);
-          }
-      }
-      try
-      {
-          segmentLen += tags.update(ioDW, true);
-      }
-      catch (VoidOutOfBoundException e)
-      {
-        LOG.info("Tags element size exceeds block size. Will expand file.");
-        try (FileDataWriter dw = copyBeginningOfFile())
-        {
-          segmentLen += tags.update(dw, false);
-          copyEndOfFileAndClose(dw);
-        }
-        catch (VoidOutOfBoundException | IOException ex)
-        {
-          throw new RuntimeException(ex);
-        }
-      }
+      segmentLen += tracks.update(ioDW);
+      segmentLen += tags.update(ioDW);
       segmentLen += clusterLen;
 
       segmentElem.setUnknownSize(false);
       segmentElem.setSize(segmentLen);
       segmentElem.update(ioDW);
     }
-  }
-
-  private FileDataWriter copyBeginningOfFile()
-    throws IOException
-  {
-    FileDataWriter dw = new FileDataWriter(Files.createTempFile("mka", ".tmp").toFile().getPath());
-    dw.copyToPosition((FileDataWriter)ioDW);
-
-    return dw;
-  }
-
-  private void copyEndOfFileAndClose(FileDataWriter dw)
-    throws IOException
-  {
-    dw.copyFromPosition((FileDataWriter)ioDW);
-
-    ((FileDataWriter) ioDW).close();
-    ((FileDataWriter) ioDW).replaceWithFile(dw);
-
   }
 }

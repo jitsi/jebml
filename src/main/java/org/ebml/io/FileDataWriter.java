@@ -158,13 +158,39 @@ public class FileDataWriter implements DataWriter, Closeable
         src.fc.transferTo(src.fc.position(), src.fc.size() - src.fc.position(), fc);
     }
 
-    public void replaceWithFile(FileDataWriter dw)
-            throws IOException
+  /**
+   * Copies the beginning of the file to a temporary file.
+   * @return the FileDataWriter for the temporary file.
+   * @throws IOException
+   */
+  public FileDataWriter copyBeginningOfFile()
+        throws IOException
     {
-      Files.move(Path.of(dw.filename), Path.of(this.filename), StandardCopyOption.REPLACE_EXISTING);
+        Path f = Files.createTempFile("mka", ".tmp");
 
-      // recreate after we move the new file
-      file = new RandomAccessFile(filename, "rw");
-      fc = file.getChannel();
+        FileDataWriter dw = new FileDataWriter(f.toFile().getPath());
+        dw.copyToPosition(this);
+
+        return dw;
+    }
+
+  /**
+   * Copies the end of the current file(from current position) into the supplied FileDataWriter and replaces
+   * the current file with the temp one.
+   * @param dw The FileDataWriter to use as a new file.
+   * @throws IOException
+   */
+  public void copyEndOfFile(FileDataWriter dw)
+        throws IOException
+    {
+        dw.copyFromPosition(this);
+
+        this.close();
+
+        Files.move(Path.of(dw.filename), Path.of(this.filename), StandardCopyOption.REPLACE_EXISTING);
+
+        // recreate after we move the new file
+        file = new RandomAccessFile(filename, "rw");
+        fc = file.getChannel();
     }
 }
