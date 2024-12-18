@@ -19,28 +19,43 @@
  */
 package org.ebml.io;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 public class FileDataWriter implements DataWriter, Closeable
 {
+  private static final Logger LOG = LoggerFactory.getLogger(FileDataWriter.class);
+
   RandomAccessFile file = null;
   FileChannel fc = null;
+
+  /**
+   * We need this in order to be able to replace the file with another one.
+   */
+  String filename = null;
 
   public FileDataWriter(final String filename) throws FileNotFoundException, IOException
   {
     file = new RandomAccessFile(filename, "rw");
     fc = file.getChannel();
+    this.filename = filename;
   }
 
   public FileDataWriter(final String filename, final String mode) throws FileNotFoundException, IOException
   {
     file = new RandomAccessFile(filename, mode);
     fc = file.getChannel();
+    this.filename = filename;
   }
 
   @Override
@@ -53,6 +68,7 @@ public class FileDataWriter implements DataWriter, Closeable
     }
     catch (final IOException ex)
     {
+      LOG.error("Failed to write byte", ex);
       return 0;
     }
   }
@@ -66,6 +82,7 @@ public class FileDataWriter implements DataWriter, Closeable
     }
     catch (final IOException ex)
     {
+      LOG.error("Failed to write buffer", ex);
       return 0;
     }
   }
@@ -79,6 +96,7 @@ public class FileDataWriter implements DataWriter, Closeable
     }
     catch (final IOException ex)
     {
+      LOG.error("Failed to get length", ex);
       return -1;
     }
   }
@@ -92,6 +110,7 @@ public class FileDataWriter implements DataWriter, Closeable
     }
     catch (final IOException ex)
     {
+      LOG.error("Failed to get pointer", ex);
       return -1;
     }
   }
@@ -112,6 +131,7 @@ public class FileDataWriter implements DataWriter, Closeable
     }
     catch (final IOException ex)
     {
+      LOG.error("Failed to seek", ex);
       return -1;
     }
   }
@@ -121,4 +141,56 @@ public class FileDataWriter implements DataWriter, Closeable
   {
     file.close();
   }
+
+  /**
+   * Copy data from source to source position into current file starting from the beginning.
+   */
+  public void copyToPosition(FileDataWriter src) throws IOException
+  {
+    src.fc.transferTo(0, src.fc.position(), fc);
+  }
+
+  /**
+   * Copy from current position of src to its end to the current file on current position.
+   */
+    public void copyFromPosition(FileDataWriter src) throws IOException
+    {
+        src.fc.transferTo(src.fc.position(), src.fc.size() - src.fc.position(), fc);
+    }
+
+  /**
+   * Copies the beginning of the file to a temporary file.
+   * @return the FileDataWriter for the temporary file.
+   * @throws IOException
+   */
+  public FileDataWriter copyBeginningOfFile()
+        throws IOException
+    {
+        Path f = Files.createTempFile("mka", ".tmp");
+
+        FileDataWriter dw = new FileDataWriter(f.toFile().getPath());
+        dw.copyToPosition(this);
+
+        return dw;
+    }
+
+  /**
+   * Copies the end of the current file(from current position) into the supplied FileDataWriter and replaces
+   * the current file with the temp one.
+   * @param dw The FileDataWriter to use as a new file.
+   * @throws IOException
+   */
+  public void copyEndOfFile(FileDataWriter dw)
+        throws IOException
+    {
+        dw.copyFromPosition(this);
+
+        this.close();
+
+        Files.move(Path.of(dw.filename), Path.of(this.filename), StandardCopyOption.REPLACE_EXISTING);
+
+        // recreate after we move the new file
+        file = new RandomAccessFile(filename, "rw");
+        fc = file.getChannel();
+    }
 }

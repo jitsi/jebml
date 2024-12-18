@@ -22,7 +22,6 @@ package org.ebml.matroska;
 import java.io.Closeable;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.*;
 
 import org.ebml.MasterElement;
 import org.ebml.StringElement;
@@ -92,6 +91,9 @@ public class MatroskaFileWriter implements Closeable
 
     metaSeek.addIndexedElement(MatroskaDocTypes.Tags.getType(), ioDW.getFilePointer());
     tags.writeTags(ioDW);
+
+    // If tracks got expanded beyond the void element, tags needs to adjust its pointer
+    tracks.addPropertyChangeListener(tags);
 
     cluster = new MatroskaCluster();
     metaSeek.addIndexedElement(MatroskaDocTypes.Cluster.getType(), ioDW.getFilePointer());

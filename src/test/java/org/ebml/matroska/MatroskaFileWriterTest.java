@@ -118,6 +118,65 @@ public class MatroskaFileWriterTest
   }
 
   @Test
+  public void testMultipleTracksToFillVoidArea() throws Exception
+  {
+    final MatroskaFileWriter writer = new MatroskaFileWriter(ioDW);
+
+    for (int i = 0; i < 40; i++)
+    {
+      final MatroskaFileTrack nextTrack = new MatroskaFileTrack();
+      nextTrack.setTrackNo(i);
+      nextTrack.setTrackType(TrackType.CONTROL);
+      nextTrack.setCodecID("some codec");
+      nextTrack.setDefaultDuration(4242);
+      writer.addTrack(nextTrack);
+    }
+
+    writer.addFrame(generateFrame("I know a song...", 42));
+    writer.addFrame(generateFrame("that gets on everybody's nerves", 2));
+
+    writer.close();
+
+    final FileDataSource inputDataSource = new FileDataSource(destination.getPath());
+    final MatroskaFile reader = new MatroskaFile(inputDataSource);
+    reader.readFile();
+    assertEquals(40, reader.getTrackList().length);
+    LOG.info(reader.getReport());
+    testDocTraversal();
+  }
+
+  @Test
+  public void testMultipleTags() throws Exception
+  {
+    final MatroskaFileWriter writer = new MatroskaFileWriter(ioDW);
+    writer.addTrack(testTrack);
+
+    for (int i = 0; i < 100; i++)
+    {
+      final MatroskaFileTagEntry tag = new MatroskaFileTagEntry();
+      final MatroskaFileSimpleTag simpleTag = new MatroskaFileSimpleTag();
+      simpleTag.setName("MyTITLE" + i);
+      simpleTag.setValue("MyCanon in D" + i);
+      tag.addSimpleTag(simpleTag);
+      writer.addTag(tag);
+    }
+
+    writer.addFrame(generateFrame("I know a song...", 42));
+    writer.addFrame(generateFrame("that gets on everybody's nerves", 2));
+
+    writer.close();
+
+    final FileDataSource inputDataSource = new FileDataSource(destination.getPath());
+    final MatroskaFile reader = new MatroskaFile(inputDataSource);
+    reader.readFile();
+    assertEquals(TrackType.SUBTITLE, reader.getTrackList()[0].getTrackType());
+    assertEquals(42, reader.getTrackList()[0].getTrackNo());
+    assertEquals(100, reader.getTagList().size());
+    LOG.info(reader.getReport());
+    testDocTraversal();
+  }
+
+  @Test
   public void testSilentTrack() throws FileNotFoundException, IOException
   {
     final MatroskaFileWriter writer = new MatroskaFileWriter(ioDW);
