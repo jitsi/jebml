@@ -49,16 +49,16 @@ public class MatroskaFileTracks
 
       // we need to write beyond the void space we have reserved
       // copy beginning of file into a temporary file
-      try (FileDataWriter dw = ((FileDataWriter)ioDW).copyBeginningOfFile())
+      try (FileDataWriter tmp = ((FileDataWriter)ioDW).copyBeginningOfFile())
       {
         // write the tracks
-        len = tracksElem.writeElement(dw);
+        len = tracksElem.writeElement(tmp);
 
         // now let's copy the rest of the original file by first setting the position after the tracks
         ioDW.seek(myEndPosition);
 
         // copy the rest of the original file
-        ((FileDataWriter)ioDW).copyEndOfFile(dw);
+        ((FileDataWriter)ioDW).copyEndOfFile(tmp);
 
         myEndPosition = myStartPosition + len;
 
@@ -82,6 +82,7 @@ public class MatroskaFileTracks
     if (BLOCK_SIZE > tracksElem.getTotalSize() && ioDW.isSeekable())
     {
       new VoidElement(BLOCK_SIZE - tracksElem.getTotalSize()).writeElement(ioDW);
+      myEndPosition = ioDW.getFilePointer();
       return BLOCK_SIZE;
     }
 
