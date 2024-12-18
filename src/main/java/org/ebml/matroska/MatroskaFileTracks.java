@@ -22,7 +22,8 @@ public class MatroskaFileTracks
 
   private final ArrayList<MatroskaFileTrack> tracks = new ArrayList<>();
 
-  private long myPosition;
+  private long myStartPosition;
+  private long myEndPosition;
 
   public void addTrack(final MatroskaFileTrack track)
   {
@@ -31,7 +32,7 @@ public class MatroskaFileTracks
 
   public long writeTracks(final DataWriter ioDW)
   {
-    myPosition = ioDW.getFilePointer();
+    myStartPosition = ioDW.getFilePointer();
     final MasterElement tracksElem = MatroskaDocTypes.Tracks.getInstance();
 
     for (final MatroskaFileTrack track : tracks)
@@ -39,7 +40,10 @@ public class MatroskaFileTracks
       tracksElem.addChildElement(track.toElement());
     }
 
-    if (BLOCK_SIZE < tracksElem.getTotalSize() && ioDW.isSeekable())
+    if (BLOCK_SIZE < tracksElem.getTotalSize() && ioDW.isSeekable()
+        // do the shuffling the data only if the file is big enough to contain the data
+        // if it is not it means we are writing the file for the first time and we don't need to shuffle the data
+        && ioDW.length() > myStartPosition + tracksElem.getTotalSize())
     {
       long len;
 
@@ -51,10 +55,14 @@ public class MatroskaFileTracks
         len = tracksElem.writeElement(dw);
 
         // now let's copy the rest of the original file by first setting the position after the tracks
-        ioDW.seek(myPosition + BLOCK_SIZE);
+        ioDW.seek(myEndPosition);
 
         // copy the rest of the original file
         ((FileDataWriter)ioDW).copyEndOfFile(dw);
+
+        myEndPosition = myStartPosition + len;
+
+        ioDW.seek(myEndPosition);
       }
       catch (IOException ex)
       {
@@ -70,6 +78,7 @@ public class MatroskaFileTracks
 
     long size = tracksElem.writeElement(ioDW);
 
+    myEndPosition = ioDW.getFilePointer();
     if (BLOCK_SIZE > tracksElem.getTotalSize() && ioDW.isSeekable())
     {
       new VoidElement(BLOCK_SIZE - tracksElem.getTotalSize()).writeElement(ioDW);
@@ -83,7 +92,7 @@ public class MatroskaFileTracks
   {
     LOG.info("Updating tracks list!");
     final long start = ioDW.getFilePointer();
-    ioDW.seek(myPosition);
+    ioDW.seek(myStartPosition);
     long len = writeTracks(ioDW);
     ioDW.seek(start);
     return len;

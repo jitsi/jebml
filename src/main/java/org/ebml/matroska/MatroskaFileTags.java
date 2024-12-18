@@ -19,7 +19,8 @@ public class MatroskaFileTags
 
   private final ArrayList<MatroskaFileTagEntry> tags = new ArrayList<>();
 
-  private long myPosition;
+  private long myStartPosition;
+  private long myEndPosition;
 
   public void addTag(final MatroskaFileTagEntry tag)
   {
@@ -28,7 +29,7 @@ public class MatroskaFileTags
 
   public long writeTags(final DataWriter ioDW)
   {
-    myPosition = ioDW.getFilePointer();
+    myStartPosition = ioDW.getFilePointer();
     final MasterElement tagsElem = MatroskaDocTypes.Tags.getInstance();
 
     for (final MatroskaFileTagEntry tag : tags)
@@ -36,7 +37,10 @@ public class MatroskaFileTags
       tagsElem.addChildElement(tag.toElement());
     }
 
-    if (BLOCK_SIZE < tagsElem.getTotalSize() && ioDW.isSeekable())
+    if (BLOCK_SIZE < tagsElem.getTotalSize() && ioDW.isSeekable()
+        // do the shuffling the data only if the file is big enough to contain the data
+        // if it is not it means we are writing the file for the first time and we don't need to shuffle the data
+        && ioDW.length() > myStartPosition + tagsElem.getTotalSize())
     {
       long len;
 
@@ -48,10 +52,13 @@ public class MatroskaFileTags
         len = tagsElem.writeElement(dw);
 
         // now let's copy the rest of the original file by first setting the position after the tags
-        ioDW.seek(myPosition + BLOCK_SIZE);
+        ioDW.seek(myEndPosition);
 
         // copy the rest of the original file
         ((FileDataWriter)ioDW).copyEndOfFile(dw);
+        myEndPosition = myStartPosition + len;
+
+        ioDW.seek(myEndPosition);
       }
       catch (IOException ex)
       {
@@ -62,7 +69,7 @@ public class MatroskaFileTags
     }
 
     long len = tagsElem.writeElement(ioDW);
-
+    myEndPosition = ioDW.getFilePointer();
     if (BLOCK_SIZE > tagsElem.getTotalSize() && ioDW.isSeekable())
     {
       new VoidElement(BLOCK_SIZE - tagsElem.getTotalSize()).writeElement(ioDW);
@@ -76,7 +83,7 @@ public class MatroskaFileTags
   {
     LOG.info("Updating tags list!");
     final long start = ioDW.getFilePointer();
-    ioDW.seek(myPosition);
+    ioDW.seek(myStartPosition);
     long len = writeTags(ioDW);
     ioDW.seek(start);
     return len;
@@ -87,7 +94,9 @@ public class MatroskaFileTags
   {
     if (evt.getPropertyName().equals(MatroskaFileTracks.RESIZED))
     {
-      myPosition = myPosition + ((long) evt.getNewValue() - (long) evt.getOldValue());
+      long increase = (long) evt.getNewValue() - (long) evt.getOldValue();
+      myStartPosition += increase;
+      myEndPosition += increase;
     }
   }
 }
