@@ -125,7 +125,7 @@ public class MatroskaFileWriterTest
     for (int i = 0; i < 40; i++)
     {
       final MatroskaFileTrack nextTrack = new MatroskaFileTrack();
-      nextTrack.setTrackNo(i + 2);
+      nextTrack.setTrackNo(i);
       nextTrack.setTrackType(TrackType.CONTROL);
       nextTrack.setCodecID("some codec");
       nextTrack.setDefaultDuration(4242);
